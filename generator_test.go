@@ -6,8 +6,8 @@ import (
 
 	. "github.com/dave/jennifer/jen"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_genTypeName(t *testing.T) {
@@ -19,7 +19,7 @@ func Test_genTypeName(t *testing.T) {
 	tests := []jsonToSource{
 		//
 		{
-			`{"type": "publicKey"}`,
+			`{"type": "pubkey"}`,
 			"var thing solanago.PublicKey",
 		},
 		{
@@ -76,7 +76,7 @@ func Test_genTypeName(t *testing.T) {
 			"var thing string",
 		},
 		{
-			`{"type": "publicKey"}`,
+			`{"type": "pubkey"}`,
 			"var thing solanago.PublicKey",
 		},
 
@@ -110,7 +110,7 @@ func Test_genTypeName(t *testing.T) {
 
 		// "vec":
 		{
-			`{"type": {"vec": "publicKey"}}`,
+			`{"type": {"vec": "pubkey"}}`,
 			"var thing []solanago.PublicKey",
 		},
 		{
