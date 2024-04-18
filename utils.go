@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	. "github.com/dave/jennifer/jen"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gagliardetto/anchor-go/sighash"
 	"github.com/gagliardetto/solana-go"
 	. "github.com/gagliardetto/utilz"
@@ -15,6 +16,7 @@ func ToPackageName(s string) string {
 	return sighash.ToRustSnakeCase(ToCamel(s))
 }
 func NewGoFile(programName string, includeBoilerplace bool) *File {
+	spew.Dump("program name", programName)
 	file := NewFile(ToPackageName(programName))
 	// Set a prefix to avoid collision between variable names and packages:
 	file.PackagePrefix = "ag"

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -132,13 +131,13 @@ func main() {
 		// spew.Dump(idl)
 
 		// Create subfolder for package for generated assets:
-		packageAssetFolderName := sighash.ToRustSnakeCase(idl.Name)
+		packageAssetFolderName := sighash.ToRustSnakeCase(idl.Metadata.Name)
 		var dstDirForFiles string
 		if GetConfig().Debug {
 			packageAssetFolderPath := path.Join(GetConfig().DstDir, packageAssetFolderName)
 			MustCreateFolderIfNotExists(packageAssetFolderPath, os.ModePerm)
 			// Create folder for assets generated during this run:
-			thisRunAssetFolderName := ToLowerCamel(idl.Name) + "_" + ts.Format(FilenameTimeFormat)
+			thisRunAssetFolderName := ToLowerCamel(idl.Metadata.Name) + "_" + ts.Format(FilenameTimeFormat)
 			thisRunAssetFolderPath := path.Join(packageAssetFolderPath, thisRunAssetFolderName)
 			// Create a new assets folder inside the main assets folder:
 			MustCreateFolderIfNotExists(thisRunAssetFolderPath, os.ModePerm)
@@ -195,7 +194,7 @@ func main() {
 					MustAbs(gomodFilepath),
 				)
 				// Write `go.mod` file:
-				err = ioutil.WriteFile(gomodFilepath, mfBytes, 0666)
+				err = os.WriteFile(gomodFilepath, mfBytes, 0666)
 				if err != nil {
 					panic(err)
 				}
@@ -274,7 +273,7 @@ func GenerateClientFromProgramIDL(idl IDL) ([]*FileWrapper, error) {
 	}
 
 	{
-		file := NewGoFile(idl.Name, true)
+		file := NewGoFile(idl.Metadata.Name, true)
 		// Declare types from IDL:
 		for _, typ := range idl.Types {
 			file.Add(genTypeDef(&idl, false, typ))
@@ -285,8 +284,8 @@ func GenerateClientFromProgramIDL(idl IDL) ([]*FileWrapper, error) {
 		})
 	}
 
-	{
-		file := NewGoFile(idl.Name, true)
+	if false {
+		file := NewGoFile(idl.Metadata.Name, true)
 		// Declare account layouts from IDL:
 		for _, acc := range idl.Accounts {
 			// generate type definition:
@@ -300,7 +299,7 @@ func GenerateClientFromProgramIDL(idl IDL) ([]*FileWrapper, error) {
 
 	// Instructions:
 	for _, instruction := range idl.Instructions {
-		file := NewGoFile(idl.Name, true)
+		file := NewGoFile(idl.Metadata.Name, true)
 		insExportedName := ToCamel(instruction.Name)
 
 		// fmt.Println(RedBG(instruction.Name))
@@ -1091,7 +1090,7 @@ func genAccountGettersSetters(
 }
 
 func genProgramBoilerplate(idl IDL) (*File, error) {
-	file := NewGoFile(idl.Name, true)
+	file := NewGoFile(idl.Metadata.Name, true)
 	for _, programDoc := range idl.Docs {
 		file.HeaderComment(programDoc)
 	}
@@ -1100,12 +1099,12 @@ func genProgramBoilerplate(idl IDL) (*File, error) {
 		// ProgramID variable:
 		code := Empty()
 
-		hasAddress := idl.Metadata != nil && idl.Metadata.Address != ""
+		hasAddress := idl.Metadata != nil && idl.Address != ""
 		code.Var().Id("ProgramID").Qual(PkgSolanaGo, "PublicKey").
 			Add(
 				func() Code {
 					if hasAddress {
-						return Op("=").Qual(PkgSolanaGo, "MustPublicKeyFromBase58").Call(Lit(idl.Metadata.Address))
+						return Op("=").Qual(PkgSolanaGo, "MustPublicKeyFromBase58").Call(Lit(idl.Address))
 					}
 					return nil
 				}(),
@@ -1124,7 +1123,7 @@ func genProgramBoilerplate(idl IDL) (*File, error) {
 	{
 		// ProgramName variable:
 		code := Empty()
-		programName := ToCamel(idl.Name)
+		programName := ToCamel(idl.Metadata.Name)
 		code.Const().Id("ProgramName").Op("=").Lit(programName)
 		file.Add(code.Line())
 	}

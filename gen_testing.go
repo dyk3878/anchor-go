@@ -28,7 +28,7 @@ func genTestingFuncs(idl IDL) ([]*FileWrapper, error) {
 
 	files := make([]*FileWrapper, 0)
 	{
-		file := NewGoFile(idl.Name, true)
+		file := NewGoFile(idl.Metadata.Name, true)
 		// Declare testing tools:
 		{
 			code := Empty()
@@ -87,7 +87,7 @@ func genTestingFuncs(idl IDL) ([]*FileWrapper, error) {
 		})
 	}
 	for _, instruction := range idl.Instructions {
-		file := NewGoFile(idl.Name, true)
+		file := NewGoFile(idl.Metadata.Name, true)
 		insExportedName := ToCamel(instruction.Name)
 		{
 			// Declare test: encode, decode:
@@ -175,7 +175,7 @@ func genTestWithComplexEnum(tFunGroup *Group, insExportedName string, instructio
 
 		tFunGroup.BlockFunc(func(enumBlock *Group) {
 
-			enumName := arg.Type.GetIdlTypeDefined().Defined
+			enumName := arg.Type.GetIdlTypeDefined().Defined.Name
 			interfaceType := idl.Types.GetByName(enumName)
 			for _, variant := range interfaceType.Type.Variants {
 

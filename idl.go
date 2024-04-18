@@ -11,7 +11,7 @@ import (
 // https://github.com/project-serum/anchor/blob/97e9e03fb041b8b888a9876a7c0676d9bb4736f3/ts/src/idl.ts
 type IDL struct {
 	Version      string           `json:"version"`
-	Name         string           `json:"name"`
+	Address      string           `json:"address"`
 	Docs         []string         `json:"docs"` // @custom
 	Instructions []IdlInstruction `json:"instructions"`
 	State        *IdlState        `json:"state,omitempty"`
@@ -32,7 +32,10 @@ type IdlConstant struct {
 }
 
 type IdlMetadata struct {
-	Address string `json:"address"`
+	Name        string `json:"name"`
+	Version     string `json:"version"`
+	Spec        string `json:"spec"`
+	Description string `json:"description"`
 }
 
 type IdlTypeDefSlice []IdlTypeDef
@@ -249,7 +252,11 @@ type IdlTypeOption struct {
 
 // User defined type.
 type IdlTypeDefined struct {
-	Defined string `json:"defined"`
+	Defined idlTypeDefinedDefined `json:"defined"`
+}
+
+type idlTypeDefinedDefined struct {
+	Name string `json:"name"`
 }
 
 // Wrapper type:
